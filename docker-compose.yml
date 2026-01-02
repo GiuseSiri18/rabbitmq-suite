@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # RabbitMQ Broker with Management Plugin (UI)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: mq_broker
+    ports:
+      - "5672:5672"   # AMQP protocol port
+      - "15672:15672" # Management UI port
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  # Python API that sends messages to the queue
+  publisher:
+    build: ./services/publisher
+    container_name: mq_publisher
+    ports:
+      - "5000:5000"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+
+  # Go service that processes messages from the queue
+  worker:
+    build: ./services/worker
+    container_name: mq_worker
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
