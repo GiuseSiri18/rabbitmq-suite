@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+
+  dashboard:
+    build: ./services/dashboard
+    container_name: mq_dashboard
+    ports:
+      - "80:8080" # Dashboard accessible at http://localhost
+    depends_on:
+      - publisher
+      
   # RabbitMQ Broker with Management Plugin (UI)
   rabbitmq:
     image: rabbitmq:3-management-alpine
